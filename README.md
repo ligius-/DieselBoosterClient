@@ -10,6 +10,11 @@ This is my first Ionic(2) app and have essentially used this project as an excus
 
 There are also some strange workarounds in the code because Ionic2 is currently (Aug 2016) still in beta and some things are either not properly documented or not working. Same thing about Angular2 as well.
 
+<img src="https://github.com/ligius-/DieselBoosterClient/raw/v1.0/screenshots/Screenshot_2016-08-11-13-09-42.png" width=400 alt="home page">
+<img alt="main adjustment" src="https://github.com/ligius-/DieselBoosterClient/raw/v1.0/screenshots/Screenshot_2016-08-11-13-08-36.png" width=400>
+<img alt="advanced adjustment" src="https://github.com/ligius-/DieselBoosterClient/raw/v1.0/screenshots/Screenshot_2016-08-11-13-08-57.png" width=400>
+<img alt="save, load and raw display" src="https://github.com/ligius-/DieselBoosterClient/raw/v1.0/screenshots/Screenshot_2016-08-11-13-09-37.png" width=400>
+
 # Concept
 
 The application connectes to the module using the Bluetooth Serial stack to send commands and receive results on status updates.
