@@ -1,0 +1,192 @@
+<style>
+  .curvePoints th{
+    border: 1px solid lightgrey;
+    font-size: 70%
+  }
+
+  .curvePoints td{
+    border: 1px solid lightgrey;
+    font-size: 63%;
+    text-align: center;
+  }
+
+  .settings ion-input[type=number]{
+    /*-webkit-text-security:disc;*/
+  }
+
+  .settings ion-item{
+    /*font-size: 80%;*/
+  }
+
+</style>
+<ion-header>
+    <!--<ion-navbar>-->
+    <!--<ion-title>-->
+    <!--About-->
+    <!--</ion-title>-->
+    <!--</ion-navbar>-->
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label (click)="toggleEnabled()">
+        Enable
+      </ion-label>
+      <ion-toggle [checked]="tuningModuleStatus.enabled"
+                  (ionChange)="tuningModuleService.setEnabled($event._checked)">
+      </ion-toggle>
+      <ion-icon name="ios-information-circle-outline" item-right
+                (click)="showInfoText('If the module is <b>enabled</b>, the sensor value will be modified (using the settings below) before being sent to the ECU.<BR><BR>
+                If <b>disabled</b>, the original values from the sensor will pass through the module unaltered.')"></ion-icon>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        Apply immediately
+      </ion-label>
+      <ion-toggle [(ngModel)]="shouldApplyImmediately" (ionChange)="onSettingsChanged()">
+      </ion-toggle>
+      <ion-icon name="ios-information-circle-outline" item-right
+                (click)="showInfoText('If <b>enabled</b>, all changes below will be sent immediately (within 1-2 seconds) to the tuning module.<BR><BR>
+                If <b>disabled</b> you have to click the <i>Apply</i> button below to apply the chosen settings.')"></ion-icon>
+    </ion-item>
+
+    <ion-grid style="text-align:center;">
+      <ion-row center>
+        <ion-col>
+          <setting-spinner-component [activesettings]="activeSettingsStorage" [pendingsettings]="pendingSettingsStorage"
+                                     [property]="'globalGain'" [title]="'Gain'"
+                                     [suffixtext]="'%'" (change)="onSettingsChanged()"
+                                     [infotext]="'Global gain (default is 100).<BR>TBD.'"
+          ></setting-spinner-component>
+        </ion-col>
+
+        <ion-col>
+          <setting-spinner-component [activesettings]="activeSettingsStorage" [pendingsettings]="pendingSettingsStorage"
+                                     [property]="'globalOffset'" [title]="'Offset'"
+                                     (change)="onSettingsChanged()"
+                                     [infotext]="'Global offset (default is 128).<BR>TBD.'"
+          ></setting-spinner-component>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-item>
+      <ion-buttons>
+        <button small [disabled]="!applyEnabled" (click)="applySettings()" small>Apply</button>
+        <button small (click)="loadSettingsSlot(-1)">Refresh</button>
+        <button secondary small (click)="saveSettingSlot(0)">Save</button>
+        <button danger small (click)="loadSettingsNow(0)">Reset</button>
+      </ion-buttons>
+
+      <ion-icon name="ios-information-circle-outline" item-right
+                (click)="showInfoText('Click <b>Apply</b> to send the chosen settings to the tuning module.<BR>
+                Click <b>Refresh</b> to reload the current settings from the module into the UI.<BR>
+                Click <b>Save default</b> to save the currently <i>applied</i> settings to slot 0 (default), which will cause the module to load them on each power-up.<BR>
+                Click <b>Reset</b> to load the default tuning values from slot 0 into the UI.<BR><BR>
+                See the settings page to understand how the save/load slots work.')"
+      ></ion-icon>
+    </ion-item>
+
+    <!--<ion-item>-->
+
+      <ion-card>
+        <ion-list>
+          <button ion-item (click)="rawModuleDisplayed=!rawModuleDisplayed">
+            Realtime status: {{isConnected ? 'connected' : 'disconnected'}}, <b>{{tuningModuleStatus.enabled ? 'on' : 'off'}}</b> <small [hidden]="!isApplyPending">(...)</small>
+            <ion-icon item-right name="{{ rawModuleDisplayed ? 'eye' : 'eye-off'}}"></ion-icon>
+          </button>
+          <section [hidden]="!rawModuleDisplayed">
+            <p ion-item><small>Sensor input: {{tuningModuleStatus.sensorValue}} = <b>{{tuningModuleStatus.sensorValue/1024*5 | number:'1.3-3'}}V</b></small></p>
+            <p ion-item><small>Output to ECU: {{tuningModuleStatus.outputValue}} = <b>{{tuningModuleStatus.outputValue/1024*5| number:'1.3-3'}}V</b></small></p>
+            <p ion-item><small>Desired value: {{tuningModuleStatus.writtenValue}} = <b>{{tuningModuleStatus.writtenValue/1024*5| number:'1.3-3'}}V</b></small></p>
+            <p ion-item><small>Active curve point: {{tuningModuleStatus.activeCurvePoint}}</small></p>
+            <button small ion-item (click)="saveToClipboard()">Save entire log ({{tuningModuleStatus.logBuffer.length}}) to clipboard</button>
+          </section>
+        </ion-list>
+      </ion-card>
+
+    <ion-card>
+      <ion-list class="settings">
+        <button ion-item (click)="advancedOptionsDisplayed=!advancedOptionsDisplayed">
+          Advanced options
+          <ion-icon item-right name="{{ advancedOptionsDisplayed ? 'eye' : 'eye-off'}}"></ion-icon>
+        </button>
+        <section [hidden]="!advancedOptionsDisplayed">
+          <ion-item>
+            <ion-label stacked>Minimum range (0-1024)</ion-label>
+            <ion-input type="number" [(ngModel)]="pendingSettingsStorage.minRange" (change)="onSettingsChanged()"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label stacked>Maximum range (0-1024)</ion-label>
+            <ion-input type="number" [(ngModel)]="pendingSettingsStorage.maxRange" (change)="onSettingsChanged()"></ion-input>
+          </ion-item>
+          <ion-item>
+            Curve 0-255% recommended 70-130%
+          </ion-item>
+
+          <ion-item *ngFor="let curvePoint of pendingSettingsStorage.curve;let i = index;trackBy: customTrackBy;">
+            <ion-label  [attr.primary]="tuningModuleStatus.activeCurvePoint===i ? 'true' : null">
+
+              <small>
+
+                (
+                {{ ( 1/15*i*(pendingSettingsStorage.maxRange-pendingSettingsStorage.minRange) + (pendingSettingsStorage.minRange/1)) | number:'1.0-0'}}
+                -
+                {{ ( 1/15*(i+1)*(pendingSettingsStorage.maxRange-pendingSettingsStorage.minRange) + (pendingSettingsStorage.minRange/1)) | number:'1.0-0'}}
+                )
+
+              </small>
+
+              Point <b>{{i | number:'2.0-0'}}</b>%
+
+            </ion-label>
+            <ion-input type="number" [(ngModel)]="pendingSettingsStorage.curve[i]" (change)="onSettingsChanged()"></ion-input>
+
+            <ion-icon item-left name="remove" (click)="addToCurvePoint(i, -1);"></ion-icon>
+            <ion-icon item-right name="add" (click)="addToCurvePoint(i, 1);"></ion-icon>
+          </ion-item>
+
+          <button ion-item small [disabled]="!applyEnabled" (click)="applySettings()" small>Apply</button>
+
+          <span *ngFor="let index of [0,1,2,3,4,5,6,7,8,9]">
+            <button secondary small (click)="saveSettingSlot(index)">Save {{index}}</button>
+            <button small (click)="loadSettingsNow(index)">Load {{index}}</button>
+          </span>
+
+        </section>
+      </ion-list>
+    </ion-card>
+
+    <ion-card>
+      <ion-list>
+        <button ion-item (click)="rawSettingsDisplayed=!rawSettingsDisplayed">
+          Raw setting status
+          <ion-icon item-right name="{{ rawSettingsDisplayed ? 'eye' : 'eye-off'}}"></ion-icon>
+        </button>
+        <section [hidden]="!rawSettingsDisplayed">
+          <p ion-item>Gain: {{activeSettingsStorage.globalGain}} offset: {{activeSettingsStorage.globalOffset}} min:{{activeSettingsStorage.minRange}} max:{{activeSettingsStorage.minRange}} </p>
+          <!--<section ion-item>-->
+            <!--<table class="curvePoints">-->
+              <!--<th *ngFor="let value of activeSettingsStorage.curve; let index=index">{{index}}</th>-->
+              <!--<tr>-->
+                <!--<td *ngFor="let value of activeSettingsStorage.curve; let index=index">{{value}}</td>-->
+              <!--</tr>-->
+            <!--</table>-->
+          <!--</section>-->
+          <!--<span>{{activeSettingsStorage.curve.join(',')}}</span>-->
+          <div ion-item>
+            Curve points
+            <p *ngFor="let value of activeSettingsStorage.curve;let i=index">Point [{{index}}] Active: {{value}}% Pending:{{pendingSettingsStorage.curve[i]}}% </p>
+          </div>
+
+          <!--<span syle="font-size=-5;"><span *ngFor="let value of activeSettingsStorage.curve; let index=index">{{index}}={{value}} </span></span>-->
+        </section>
+      </ion-list>
+    </ion-card>
+
+    <!--</ion-item>-->
+  </ion-list>
+
+
+</ion-content>

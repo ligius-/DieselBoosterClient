@@ -1,0 +1,26 @@
+<ion-grid>
+  <ion-row center>
+    <ion-col (click)="showInfoText();">
+      {{title}}
+      <ion-icon style="margin:0;" [hidden]="!infoText" name="ios-information-circle-outline" item-right></ion-icon>
+    </ion-col>
+    <!--<ion-icon name="information-circle" item-right></ion-icon>-->
+  </ion-row>
+  <ion-row>
+    <button block round (click)="addValue(1);">
+      <ion-icon name="arrow-up"></ion-icon>
+    </button>
+  </ion-row>
+  <ion-col>
+    <ion-label><h1 style="display:inline;">{{pendingSettings[propertyName]}}{{suffixText}}</h1>
+      <small>({{pendingSettings[propertyName]>=activeSettings[propertyName] ? '+' :''}}
+        {{pendingSettings[propertyName]-activeSettings[propertyName]}}{{suffixText}})
+      </small>
+    </ion-label>
+  </ion-col>
+  <ion-row>
+    <button block round (click)="addValue(-1);">
+      <ion-icon name="arrow-down"></ion-icon>
+    </button>
+  </ion-row>
+</ion-grid>

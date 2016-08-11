@@ -1,0 +1,3 @@
+<ion-tabs #tabsRef>
+  <ion-tab *ngFor="let tabItem of availableTabs" [root]="tabItem.tab" [tabTitle]="tabItem.title" [tabIcon]="tabItem.icon"></ion-tab>
+</ion-tabs>

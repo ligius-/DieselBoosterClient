@@ -1,0 +1,82 @@
+<style>
+  .bar {
+    fill: blue;
+    /*width: 18px;*/
+  }
+  .bar.active {
+    fill: lightblue;
+    /*width: 18px;*/
+  }
+  .draggable {
+    cursor: move;
+  }
+  .tuningGraph{
+    margin: 12px;
+  }
+  .tuningGraph .barText{
+    stroke: white;
+  }
+  .tuningGraph .centerline{
+    stroke: red;
+  }
+</style>
+<ion-header>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-list-header><ion-label>Enabled</ion-label><ion-toggle *ngIf="tuningModuleStatus" [checked]="tuningModuleStatus.enabled" (ionChange)="setModuleEnabled($event)"></ion-toggle></ion-list-header>
+    <span *ngIf="tuningModuleStatus">i:{{tuningModuleStatus.sensorValue}} i2:{{tuningModuleStatus.outputValue}} o:{{tuningModuleStatus.writtenValue}} en:{{tuningModuleStatus.enabled}}</span>
+    <BR>
+    This page is under development, likely nothing works here.
+    <BR>
+    <span *ngFor="let point of curveModels">{{point.value}} </span>
+    <!--<form #f="ngForm" (submit)="sendSerialString($event)">-->
+      <ion-item>
+        <ion-input placeholder="mock serial input" type="text" [(ngModel)]="serialMockOutData"></ion-input>
+      </ion-item>
+      <ion-item>
+        <button (click)="sendSerialString(serialMockOutData)">send</button>
+      </ion-item>
+      <ion-title (click)="readMockSetting(1)">test</ion-title>
+    <!--</form>-->
+
+    <!--<ion-list-header>Follow us on Twitter</ion-list-header>-->
+    <!--<ion-item>-->
+      <!--<ion-icon name="ionic" item-left></ion-icon>-->
+      <!--@ionicframework-->
+    <!--</ion-item>-->
+    <svg xmlns="http://www.w3.org/2000/svg" class="tuningGraph" [attr.viewBox]="graphOptions.viewBoxStr">
+      <g>
+        <title>Car equalizer thingie</title>
+        <g *ngFor="let curvePoint of curveModels; let i=index"
+           [attr.transform]="'translate('+i*graphOptions.barWidth+',' + (150-curveModels[i].value) +')'"
+           [attr.id]="'barX'+i" (mousedown)="dragStart('barX'+i, i)" (touchstart)="dragStart('barX'+i, i);"
+        >
+          <rect class="bar draggable" [ngClass]="{active: tuningModuleStatus && tuningModuleStatus.activeCurvePoint===i}"
+                [attr.width]="graphOptions.barWidth"
+                [attr.height]="curveModels[i].value"
+          >
+
+          </rect>
+          <text secondary class="barText" transform="rotate(270)" [attr.x]="-50" [attr.y]="20">{{curveModels[i].value}}</text>
+        </g>
+        <polyline class="centerline" [attr.points]="'0 '+graphOptions.midPoint+' '+graphOptions.maxWidth+' '+graphOptions.midPoint" ></polyline>
+
+        <polyline class="centerline" [attr.points]="'' + liveEngineLineX + ' 0 ' +  liveEngineLineX + ' ' + graphOptions.maxHeight" ></polyline>
+      </g>
+    </svg>
+
+    <ion-item  *ngFor="let curvePoint of curveModels; let i=index" >
+      <ion-range [min]="minAdjust" [max]="maxAdjust" pin="false" [(ngModel)]="curveModels[i].value">
+        <!--<ion-icon range-left name="car"></ion-icon>-->
+        <!--<ion-icon range-right small name="car">{{curveModels[i].value}}</ion-icon>-->
+        <ion-label range-left class="small-text">P
+        </ion-label>
+        <ion-label range-right class="small-text">F</ion-label>
+      </ion-range>
+    </ion-item>
+
+  </ion-list>
+
+</ion-content>

@@ -1,0 +1,8 @@
+su
+logcat -s chromium PluginManager BluetoothEventManager BluetoothSerial BluetoothSerialService BluetoothSocket
+
+Ctrl+c to stop logcat, Ctrl+Break to stop adb shell
+
+
+Example device list:
+07-27 13:49:37.311 11591 11591 I chromium: [INFO:CONSOLE(223)] "[{"name":"YET-M1","address":"5A:5A:5A:00:1A:F6","id":"5A:5A:5A:00:1A:F6","class":1028},{"name":"OBDII","address":"AA:BB:CC:11:22:33","id":"AA:BB:CC:11:22:33","class":7936},{"name":"GW Lite 67299","address":"00:14:2E:8A:8B:63","id":"00:14:2E:8A:8B:63","class":1028},{"name":"VEHO 360bt","address":"00:15:83:46:6F:01","id":"00:15:83:46:6F:01","class":1044},{"name":"linvor","address":"00:12:11:07:17:37","id":"00:12:11:07:17:37","class":7936},{"name":"YET-M1","address":"00:20:22:96:07:A3","id":"00:20:22:96:07:A3","class":1028}]", source: file:///android_asset/www/build/js/app.bundle.js (223)

@@ -1,0 +1,35 @@
+<ion-header>
+  <!--<ion-navbar>-->
+    <!--<ion-title>Home</ion-title>-->
+  <!--</ion-navbar>-->
+</ion-header>
+
+<ion-content padding class="home">
+  <h2>DieselBooster</h2>
+  <p>
+    To start, connect to a DieselBooster Arduino device below. For explanations see the <a (click)="switchToTab('about')">About</a> page.
+  </p>
+
+  <h2>
+    Bluetooth Devices
+  </h2>
+
+  <ion-list inset>
+    <!--<ion-item-divider>Paired devices</ion-item-divider>-->
+    <ion-item-sliding *ngFor="let device of devices.concat(unpairedDevices)" #slidingItem>
+      <button ion-item (click)="connectDevice(device)">
+        <h2>{{device.name}}</h2>
+        <p>{{device.id}} <span *ngIf="!device.paired">(not paired)</span></p>
+        <ion-icon name="checkmark" *ngIf="bluetoothServiceWrapper.connectedDevice && bluetoothServiceWrapper.connectedDevice.id===device.id" item-right></ion-icon>
+        <button *ngIf="bluetoothServiceWrapper.connectedDevice && bluetoothServiceWrapper.connectedDevice.id===device.id" clear item-right (click)="goToDeviceDetailPage(device)">
+          View
+        </button>
+      </button>
+    </ion-item-sliding>
+  </ion-list>
+  <ion-buttons start>
+    <button (click)="startScanning()"><ion-spinner [hidden]="!isScanning"></ion-spinner>Scan</button>
+    <button (click)="bluetoothServiceWrapper.disconnect()" [hidden]="!bluetoothServiceWrapper.connectedDevice">Disconnect</button>
+  </ion-buttons>
+
+</ion-content>

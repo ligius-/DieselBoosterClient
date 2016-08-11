@@ -1,0 +1,106 @@
+<ion-header>
+  <!--<ion-navbar>-->
+  <!--<ion-title>-->
+  <!--About-->
+  <!--</ion-title>-->
+  <!--</ion-navbar>-->
+</ion-header>
+
+<ion-content padding class="about">
+  <p>Project log at <a href="http://hackcorrelation.blogspot.com/search/label/diesel">Hack Correlation blog</a>.</p>
+  <!--<p>Currently all source code for both the embedded part and the frontend is located on <a href="https://github.com/ligius-/DieselTuningBox">GitHub</a>.</p>-->
+  <!--<p></p>-->
+  <p>For issues or suggestions feel free to contact me at ligius[@]gmail[dot]com</p>
+  <p></p>
+
+  <h2>Description</h2>
+  <p>
+    This app is a work-in progress designed to work with accompanying Arduino/Bluetooth module inside the car.
+  </p>
+  <p>
+    The analog signal from the high pressure fuel pump is altered by introducing a configurable offset yielding higher
+    power and/or better fuel consumption.<BR>
+    Tune the values slowly and check all scenarios (especially both heavy acceleration and idle with no load).<BR>
+    <BR>
+  </p>
+
+  <h3>Calibration:</h3>
+  <p>
+    Start with <b>Global Gain</b> (between 90-100) and <b>Global Offset</b> (between 110-140) until the values with the
+    module off match the ones with the module on.<BR>
+    The goal is to match the 'Output to ECU' value (i2) with the module <i>disabled</i> with the 'Sensor input value'
+    (i1) with the module <i>enabled</i>.<BR>
+    The gain value will alter the slope - i.e. if the calibrated values will get progressively apart/closer as you range
+    the engine RPM then you need to decrease/increase the gain.<BR>
+    The offset will alter the difference between the two - if the calibrated values are apart from the real ones with a
+    constant amount (regardless of RPM) you can compensate for that.<BR>
+    <BR>
+  </p>
+  <h3>Precautions:</h3>
+  <p>
+    Once you have found the values that closely match the factory ones (with the module enabled) write them down and
+    also save them as the default ones.<BR>
+    Leave the module disabled by <i>default</i> until you fully understand its effects.<br>
+    If you receive any errors/dashboard dings, stop the engine immediately (but safely) and either disable the module or
+    load the safe defaults.<BR>
+    If you don't remember the safe defaults, you can <b>use Gain=100, Offset=128 as acceptable defaults</b> and all curve gain points at 100%.
+    With the engine off the original sensor value is ~100 (0.5V), at idle is ~200 (1V), acceptable maximum is 1024 (5V)<BR>
+    <BR>
+  </p>
+  <h3>Tuning:</h3>
+  <p>
+    This should be done only after the calibration phase is performed, otherwise the results are meaningless.<BR>
+    Also, the conditions would have to be similar (same engine temeperature, same outside temperature, same stretch of road) because the changes might be small.<BR>
+    <BR>
+    The easiest way is to alter the global offset. Generally, going to a higher value decreases fuel consumption.<BR>
+    <BR>
+    A better tuning however is to use the curve points, these 15 points specify an increase (or decrease) for a specific RPM band.<BR>
+    In this scenario, the previous offset and gain values still apply, but now there is a specific gain (in percentage) to the sensor value, only if the value is between <i>minRange</i> and <i>maxRange</i>.<BR>
+    So a sensible min/max range would be 200 (=0.97V) to 750 (=3.66V). This means that there are now 15 tuning bands between those two numbers: 200-236, 237-273, 274-310, ... 713-750.<BR>
+    <BR>
+    Within each band the gain can be adjusted while the engine sensor is during that range. The adjustment value starts at 100% (original) and can be changed from 1% to 255%.<BR>
+    <b>Example:</b> if setting the <i>second</i> the curve point to 115% all the values within 237 and 273 will be multiplied by 1.15.<br>
+    If curve point 15(-1) is set to 75%, all values within 713 and 750 will be multiplied by 0.75.<BR>
+    The curve points should be evenly spaced in values i.e. big jumps in gains should be avoided and performed only gradually.<BR>
+    <BR>
+    Probably any setting below 70% or above 130% does not make a lot of sense - unless for specific reasons like throttling - and should be avoided.<BR>
+  </p>
+
+  <strong>This software and the accompanying hardware can be used only at your own risk! The author(s) bear no
+    responsibility if anything wrong happens and are not liable under any scenario.</strong>
+
+  <h1>FAQ</h1>
+  <p>
+    <b>Is this going to damage my car?</b><BR>
+    Likely not, but it might trigger errors and cause the car to work in 'limp mode' until the error is erased.
+  </p>
+  <p>
+    <b>Will my engine explode?</b><BR>
+    Probably not, the car is still working mostly within factory limits. The ECU is designed to handle all possible
+    values coming from the overriden sensor.
+  </p>
+  <p>
+    <b>I got an error in the dashboard.</b><BR>
+    If possible, stop the car immediately, stop the engine. You might want to wait 1 minute until you start the engine
+    again.<BR>
+    If the module is starting with the DEFAULT_ON switch set to on and you've overridden the default settings with some
+    erroneous ones, set the switch to OFF and use the app to change to some sensible settings before.
+  </p>
+  <p>
+    <b>I got an error in the dashboard. Doesn't go away with engine restart.</b><BR>
+    You need an OBD2 adapter (Bluetooth or USB) and the software to reset it. There are some devices that read and reset
+    the errors.<BR>
+    Example: Android phone/tablet, ELM327 BT adapter, Torque software - this combination is able to erase the error.
+  </p>
+  <p>
+    <b>Will I lose my warranty?</b><BR>
+    Possibly, but unlikely. If you perform the modifications in a reversible way and no errors are recorded the service
+    has no way of knowing that anything was altered.
+  </p>
+  <p>
+    <b>I don't know what all the settings do.</b><BR>
+    Neither do I, but there is a helpful hint icon that you can press to get additional information.
+  </p>
+
+  <small>&copy; Ligius 2016, all rights reserved.</small>
+</ion-content>

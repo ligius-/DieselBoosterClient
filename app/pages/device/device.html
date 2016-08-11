@@ -1,0 +1,15 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>{{device.name}} <span [hidden]="rssi===0">{{rssi}}</span></ion-title>
+      <!--<ion-buttons end>-->
+        <!--<button primary (click)="connect(device)" [hidden]="isConnected">Connect</button>-->
+        <!--<button danger (click)="disconnect()" [hidden]="!isConnected">Disconnect</button>-->
+      <!--</ion-buttons>-->
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <ion-spinner *ngIf="connecting==true" name="circles"></ion-spinner>
+  <pre style="font-size:0.7em">
+    {{tuningModuleStatus|json}}
+  </pre>
+</ion-content>
